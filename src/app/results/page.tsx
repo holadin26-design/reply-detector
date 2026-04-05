@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, Fragment } from 'react';
 import { 
   Download, 
   Search, 
@@ -42,12 +42,18 @@ export default function ResultsPage() {
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
   const fetchData = useCallback(async () => {
-    setLoading(true);
-    const params = new URLSearchParams(filters as Record<string, string>);
-    const res = await fetch(`/api/results?${params}`);
-    const data = await res.json();
-    setEmails(data);
-    setLoading(false);
+    try {
+      setLoading(true);
+      const params = new URLSearchParams(filters as Record<string, string>);
+      const res = await fetch(`/api/results?${params}`);
+      const data = await res.json();
+      setEmails(Array.isArray(data) ? data : []);
+    } catch (error) {
+      console.error('Failed to fetch results:', error);
+      setEmails([]);
+    } finally {
+      setLoading(false);
+    }
   }, [filters]);
 
   useEffect(() => {
@@ -169,10 +175,9 @@ export default function ResultsPage() {
                   No replies found matching current filters.
                 </td>
               </tr>
-            ) : emails.map((email) => (
-              <>
+            ) : (emails || []).map((email) => (
+              <Fragment key={email.id}>
                 <tr 
-                  key={email.id} 
                   onClick={() => setExpandedId(expandedId === email.id ? null : email.id)}
                   className="table-row-hover cursor-pointer transition-colors"
                 >
@@ -245,7 +250,7 @@ export default function ResultsPage() {
                     </td>
                   </tr>
                 )}
-              </>
+              </Fragment>
             ))}
           </tbody>
         </table>
