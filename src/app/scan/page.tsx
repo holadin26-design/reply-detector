@@ -28,7 +28,10 @@ export default function ScanPage() {
   const pollInterval = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
-    fetch('/api/accounts').then(res => res.json()).then(setAccounts);
+    fetch('/api/accounts')
+      .then(res => res.json())
+      .then(data => setAccounts(Array.isArray(data) ? data : []))
+      .catch(() => setAccounts([]));
   }, []);
 
   const handleStartScan = async () => {
