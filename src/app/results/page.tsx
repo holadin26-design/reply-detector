@@ -6,7 +6,6 @@ import {
   Search, 
   ChevronRight, 
   ChevronDown,
-  LayoutDashboard,
   CheckCircle,
   MessageSquare,
   Clock,
