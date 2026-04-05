@@ -21,6 +21,7 @@
     "tailwind-merge": "^2.5.0"
   },
   "devDependencies": {
+    "@types/imapflow": "^1.0.23",
     "@types/mailparser": "^3.4.4",
     "@types/node": "^20",
     "@types/react": "^18",

@@ -3,7 +3,7 @@ import { supabaseAdmin } from '@/lib/supabase';
 import { fetchEmails } from '@/lib/imap';
 import { classifyEmail } from '@/lib/openai';
 import { scanJobs } from '@/lib/scan-state';
-import { EmailAccount } from '@/types';
+import { EmailAccount, ImapEmail } from '@/types';
 
 export const runtime = 'nodejs';
 
@@ -36,24 +36,24 @@ async function runScan(jobId: string, accountIds: string[], dateFrom: Date, date
 
     for (const account of typedAccounts) {
       // 1. Fetch from IMAP
-      const emails = await fetchEmails(account, dateFrom, dateTo);
+      const emails: ImapEmail[] = await fetchEmails(account, dateFrom, dateTo);
       scanJobs[jobId].fetched += emails.length;
 
       // 2. Filter out already scanned
       const { data: existing } = await supabaseAdmin
         .from('scanned_emails')
         .select('message_id')
-        .in('message_id', emails.map((e: { message_id: string }) => e.message_id));
+        .in('message_id', emails.map((e: ImapEmail) => e.message_id));
       
       const existingIds = new Set(existing?.map(e => e.message_id) || []);
-      const newEmails = emails.filter((e: { message_id: string }) => !existingIds.has(e.message_id));
+      const newEmails = emails.filter((e: ImapEmail) => !existingIds.has(e.message_id));
 
       // 3. Batch Process with OpenAI (10 at a time)
       const batchSize = 10;
       for (let i = 0; i < newEmails.length; i += batchSize) {
         const batch = newEmails.slice(i, i + batchSize);
         
-        await Promise.allSettled(batch.map(async (email: any) => {
+        await Promise.allSettled(batch.map(async (email: ImapEmail) => {
           try {
             const classification = await classifyEmail(
               email.full_body.substring(0, 5000), // truncation for safety
@@ -109,10 +109,10 @@ async function runScan(jobId: string, accountIds: string[], dateFrom: Date, date
     }
 
     scanJobs[jobId].status = 'completed';
-  } catch (err: any) {
+  } catch (err: unknown) {
     if (scanJobs[jobId]) {
       scanJobs[jobId].status = 'error';
-      scanJobs[jobId].error = err.message;
+      scanJobs[jobId].error = err instanceof Error ? err.message : String(err);
     }
     throw err;
   }

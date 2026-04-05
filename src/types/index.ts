@@ -39,3 +39,12 @@ export interface ScanJob {
   positives: number;
   error?: string;
 }
+
+export interface ImapEmail {
+  message_id: string;
+  from_name?: string;
+  from_email?: string;
+  subject?: string;
+  full_body: string;
+  received_at: string;
+}
