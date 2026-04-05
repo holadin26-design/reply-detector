@@ -1,3 +1,6 @@
+import { NextResponse } from 'next/server';
+import { supabaseAdmin } from '@/lib/supabase';
+import { fetchEmails } from '@/lib/imap';
 import { classifyEmail } from '@/lib/openai';
 import { scanJobs } from '@/lib/scan-state';
 import { EmailAccount } from '@/types';
@@ -11,9 +14,6 @@ export async function POST(request: Request) {
   scanJobs[jobId] = { status: 'running', fetched: 0, analyzed: 0, positives: 0 };
 
   // Run the scan asynchronously so we can return the jobId immediately
-  // Note: Vercel "maxDuration" only applies to the response time. We'll start the process.
-  // Actually, for a simpler implementation that fits the poll requirement, we'll run it and the UI will poll.
-  
   runScan(jobId, accountIds, new Date(dateFrom), new Date(dateTo)).catch(err => {
     console.error('Scan Failed:', err);
     scanJobs[jobId].status = 'error';
@@ -43,17 +43,17 @@ async function runScan(jobId: string, accountIds: string[], dateFrom: Date, date
       const { data: existing } = await supabaseAdmin
         .from('scanned_emails')
         .select('message_id')
-        .in('message_id', emails.map(e => e.message_id));
+        .in('message_id', emails.map((e: any) => e.message_id));
       
       const existingIds = new Set(existing?.map(e => e.message_id) || []);
-      const newEmails = emails.filter(e => !existingIds.has(e.message_id));
+      const newEmails = emails.filter((e: any) => !existingIds.has(e.message_id));
 
       // 3. Batch Process with OpenAI (10 at a time)
       const batchSize = 10;
       for (let i = 0; i < newEmails.length; i += batchSize) {
         const batch = newEmails.slice(i, i + batchSize);
         
-        await Promise.allSettled(batch.map(async (email) => {
+        await Promise.allSettled(batch.map(async (email: any) => {
           try {
             const classification = await classifyEmail(
               email.full_body.substring(0, 5000), // truncation for safety
@@ -102,7 +102,7 @@ async function runScan(jobId: string, accountIds: string[], dateFrom: Date, date
         account_id: account.id,
         emails_fetched: emails.length,
         emails_analyzed: newEmails.length,
-        positives_found: scanJobs[jobId].positives, // this is aggregated across accounts for this specific job, might want to track per account
+        positives_found: scanJobs[jobId].positives, 
         started_at: dateFrom.toISOString(),
         completed_at: new Date().toISOString()
       }]);
@@ -110,11 +110,10 @@ async function runScan(jobId: string, accountIds: string[], dateFrom: Date, date
 
     scanJobs[jobId].status = 'completed';
   } catch (err: any) {
-    scanJobs[jobId].status = 'error';
-    scanJobs[jobId].error = err.message;
+    if (scanJobs[jobId]) {
+      scanJobs[jobId].status = 'error';
+      scanJobs[jobId].error = err.message;
+    }
     throw err;
   }
 }
-
-// Export the job tracker for the status route
-export { scanJobs };

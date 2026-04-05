@@ -1,3 +1,16 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import { 
+  Plus, 
+  Trash2, 
+  RefreshCcw, 
+  Mail, 
+  CheckCircle2, 
+  XCircle,
+  Loader2,
+  Lock
+} from 'lucide-react';
 import { EmailAccount } from '@/types';
 
 export default function AccountsPage() {

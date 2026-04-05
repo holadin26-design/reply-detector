@@ -8,7 +8,8 @@ import {
   CheckCircle2, 
   AlertCircle,
   Loader2,
-  ArrowRight
+  ArrowRight,
+  Filter
 } from 'lucide-react';
 import { EmailAccount, ScanJob } from '@/types';
 
@@ -86,7 +87,7 @@ export default function ScanPage() {
               >
                 <option value="all">All Active Accounts ({accounts.length})</option>
                 {accounts.map(acc => (
-                  <option key={acc.id} value={acc.id}>{acc.label} ({acc.email})</option>
+                  <option key(acc.id) value={acc.id}>{acc.label} ({acc.email})</option>
                 ))}
               </select>
             </div>

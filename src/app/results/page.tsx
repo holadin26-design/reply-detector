@@ -1,3 +1,6 @@
+'use client';
+
+import { useState, useEffect, useCallback } from 'react';
 import { 
   Download, 
   Search, 
@@ -9,7 +12,6 @@ import {
   ArrowUpRight
 } from 'lucide-react';
 import { EmailAccount, ScannedEmail } from '@/types';
-import { useCallback } from 'react';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
@@ -41,7 +43,7 @@ export default function ResultsPage() {
 
   const fetchData = useCallback(async () => {
     setLoading(true);
-    const params = new URLSearchParams(filters as any);
+    const params = new URLSearchParams(filters as Record<string, string>);
     const res = await fetch(`/api/results?${params}`);
     const data = await res.json();
     setEmails(data);
@@ -54,7 +56,7 @@ export default function ResultsPage() {
 
   useEffect(() => {
     fetchData();
-  }, [filters]);
+  }, [fetchData]);
 
   const stats = {
     total: emails.length,
@@ -64,7 +66,7 @@ export default function ResultsPage() {
   };
 
   const handleExport = () => {
-    const params = new URLSearchParams(filters as any);
+    const params = new URLSearchParams(filters as Record<string, string>);
     window.location.href = `/api/results/export?${params}`;
   };
 
