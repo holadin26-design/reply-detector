@@ -87,7 +87,7 @@ export default function ScanPage() {
               >
                 <option value="all">All Active Accounts ({accounts.length})</option>
                 {accounts.map(acc => (
-                  <option key(acc.id) value={acc.id}>{acc.label} ({acc.email})</option>
+                  <option key={acc.id} value={acc.id}>{acc.label} ({acc.email})</option>
                 ))}
               </select>
             </div>
