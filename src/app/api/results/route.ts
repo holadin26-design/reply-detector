@@ -1,8 +1,11 @@
 import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase';
 
+export const runtime = 'nodejs';
+
 export async function GET(request: Request) {
-  const { searchParams } = new URL(request.url);
+  try {
+    const { searchParams } = new URL(request.url);
   const accountId = searchParams.get('accountId');
   const category = searchParams.get('category');
   const isPositive = searchParams.get('isPositive');
@@ -24,8 +27,12 @@ export async function GET(request: Request) {
   if (dateFrom) query = query.gte('received_at', dateFrom);
   if (dateTo) query = query.lte('received_at', dateTo);
 
-  const { data, error } = await query;
+    const { data, error } = await query;
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-  return NextResponse.json(data);
+    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json(data);
+  } catch (err: unknown) {
+    console.error('Results GET Error:', err);
+    return NextResponse.json({ error: err instanceof Error ? err.message : String(err) }, { status: 500 });
+  }
 }

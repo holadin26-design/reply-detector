@@ -1,8 +1,11 @@
 import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase';
 
+export const runtime = 'nodejs';
+
 export async function GET(request: Request) {
-  const { searchParams } = new URL(request.url);
+  try {
+    const { searchParams } = new URL(request.url);
   const accountId = searchParams.get('accountId');
   const category = searchParams.get('category');
   const isPositive = searchParams.get('isPositive');
@@ -41,10 +44,14 @@ export async function GET(request: Request) {
     ...rows.map(r => r.join(','))
   ].join('\n');
 
-  return new Response(csvContent, {
-    headers: {
-      'Content-Type': 'text/csv',
-      'Content-Disposition': `attachment; filename="replyradar_results_${new Date().toISOString().split('T')[0]}.csv"`,
-    },
-  });
+    return new Response(csvContent, {
+      headers: {
+        'Content-Type': 'text/csv',
+        'Content-Disposition': `attachment; filename="replyradar_results_${new Date().toISOString().split('T')[0]}.csv"`,
+      },
+    });
+  } catch (err: unknown) {
+    console.error('Export GET Error:', err);
+    return NextResponse.json({ error: err instanceof Error ? err.message : String(err) }, { status: 500 });
+  }
 }
