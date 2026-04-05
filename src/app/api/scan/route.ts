@@ -43,10 +43,10 @@ async function runScan(jobId: string, accountIds: string[], dateFrom: Date, date
       const { data: existing } = await supabaseAdmin
         .from('scanned_emails')
         .select('message_id')
-        .in('message_id', emails.map((e: any) => e.message_id));
+        .in('message_id', emails.map((e: { message_id: string }) => e.message_id));
       
       const existingIds = new Set(existing?.map(e => e.message_id) || []);
-      const newEmails = emails.filter((e: any) => !existingIds.has(e.message_id));
+      const newEmails = emails.filter((e: { message_id: string }) => !existingIds.has(e.message_id));
 
       // 3. Batch Process with OpenAI (10 at a time)
       const batchSize = 10;
