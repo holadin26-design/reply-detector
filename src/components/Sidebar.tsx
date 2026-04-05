@@ -3,7 +3,7 @@ import { usePathname } from 'next/navigation';
 import { 
   Settings, 
   Scan, 
-  BarChart3, 
+  LayoutDashboard, 
   ShieldCheck
 } from 'lucide-react';
 import { clsx, type ClassValue } from 'clsx';
@@ -14,7 +14,7 @@ function cn(...inputs: ClassValue[]) {
 }
 
 const navItems = [
-  { name: 'Dashboard', href: '/results', icon: BarChart3 },
+  { name: 'Dashboard', href: '/results', icon: LayoutDashboard },
   { name: 'Manual Scanner', href: '/scan', icon: Scan },
   { name: 'Email Accounts', href: '/accounts', icon: Settings },
 ];
