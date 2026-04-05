@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { scanJobs } from '../route';
+import { scanJobs } from '@/lib/scan-state';
 
 export async function GET(
   request: Request,

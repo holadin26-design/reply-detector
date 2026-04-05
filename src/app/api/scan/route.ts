@@ -2,18 +2,9 @@ import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase';
 import { fetchEmails } from '@/lib/imap';
 import { classifyEmail } from '@/lib/openai';
+import { scanJobs } from '@/lib/scan-state';
 
 export const runtime = 'nodejs';
-
-// Simple in-memory tracker for progress (Note: in production Vercel sessions this won't persist across lambdas, 
-// but for the spec's "poll" requirement and "maxDuration" it suffices for a single long-running request or local dev)
-const scanJobs: Record<string, {
-  status: 'running' | 'completed' | 'error';
-  fetched: number;
-  analyzed: number;
-  positives: number;
-  error?: string;
-}> = {};
 
 export async function POST(request: Request) {
   const { accountIds, dateFrom, dateTo } = await request.json();
