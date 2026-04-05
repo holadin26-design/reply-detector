@@ -1,7 +1,8 @@
 import { ImapFlow } from 'imapflow';
 import { simpleParser } from 'mailparser';
+import { EmailAccount } from '@/types';
 
-export async function testImapConnection(config: any) {
+export async function testImapConnection(config: Partial<EmailAccount>) {
   const client = new ImapFlow({
     host: config.imap_host || 'imap.gmail.com',
     port: config.imap_port || 993,
@@ -23,7 +24,7 @@ export async function testImapConnection(config: any) {
   }
 }
 
-export async function fetchEmails(config: any, dateFrom: Date, dateTo: Date) {
+export async function fetchEmails(config: EmailAccount, dateFrom: Date, dateTo: Date) {
   const client = new ImapFlow({
     host: config.imap_host || 'imap.gmail.com',
     port: config.imap_port || 993,
@@ -36,7 +37,7 @@ export async function fetchEmails(config: any, dateFrom: Date, dateTo: Date) {
   });
 
   await client.connect();
-  let lock = await client.getMailboxLock('INBOX');
+  const lock = await client.getMailboxLock('INBOX');
 
   try {
     const messages = [];
@@ -45,7 +46,7 @@ export async function fetchEmails(config: any, dateFrom: Date, dateTo: Date) {
       before: new Date(dateTo.getTime() + 24 * 60 * 60 * 1000), // inclusive of dateTo
     };
 
-    for await (let message of client.list(searchCriteria, { source: true })) {
+    for await (const message of client.list(searchCriteria, { source: true })) {
       const parsed = await simpleParser(message.source);
       
       messages.push({

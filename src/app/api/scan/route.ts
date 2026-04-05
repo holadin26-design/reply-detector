@@ -1,8 +1,6 @@
-import { NextResponse } from 'next/server';
-import { supabaseAdmin } from '@/lib/supabase';
-import { fetchEmails } from '@/lib/imap';
 import { classifyEmail } from '@/lib/openai';
 import { scanJobs } from '@/lib/scan-state';
+import { EmailAccount } from '@/types';
 
 export const runtime = 'nodejs';
 
@@ -34,7 +32,9 @@ async function runScan(jobId: string, accountIds: string[], dateFrom: Date, date
 
     if (accError) throw accError;
 
-    for (const account of accounts) {
+    const typedAccounts = accounts as EmailAccount[];
+
+    for (const account of typedAccounts) {
       // 1. Fetch from IMAP
       const emails = await fetchEmails(account, dateFrom, dateTo);
       scanJobs[jobId].fetched += emails.length;

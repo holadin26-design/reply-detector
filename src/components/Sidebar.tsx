@@ -1,11 +1,9 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { 
-  LayoutDashboard, 
   Settings, 
   Scan, 
   BarChart3, 
-  Mail,
   ShieldCheck
 } from 'lucide-react';
 import { clsx, type ClassValue } from 'clsx';

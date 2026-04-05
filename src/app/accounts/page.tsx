@@ -1,19 +1,7 @@
-'use client';
-
-import { useState, useEffect } from 'react';
-import { 
-  Plus, 
-  Trash2, 
-  RefreshCcw, 
-  Mail, 
-  CheckCircle2, 
-  XCircle,
-  Loader2,
-  Lock
-} from 'lucide-react';
+import { EmailAccount } from '@/types';
 
 export default function AccountsPage() {
-  const [accounts, setAccounts] = useState<any[]>([]);
+  const [accounts, setAccounts] = useState<EmailAccount[]>([]);
   const [loading, setLoading] = useState(true);
   const [showAdd, setShowAdd] = useState(false);
   const [testing, setTesting] = useState(false);
@@ -143,7 +131,7 @@ export default function AccountsPage() {
                 placeholder="xxxx xxxx xxxx xxxx"
                 className="w-full bg-slate-950 border border-slate-700 rounded-lg px-4 py-2 focus:ring-2 focus:ring-indigo-500 outline-none"
               />
-              <p className="text-xs text-slate-500">Enable 2FA and create an 'App Password' in your Google Security settings.</p>
+              <p className="text-xs text-slate-500">Enable 2FA and create an &apos;App Password&apos; in your Google Security settings.</p>
             </div>
             
             <div className="md:col-span-2 flex items-center gap-4 pt-4">

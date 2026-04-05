@@ -8,13 +8,13 @@ import {
   CheckCircle2, 
   AlertCircle,
   Loader2,
-  ArrowRight,
-  Filter
+  ArrowRight
 } from 'lucide-react';
+import { EmailAccount, ScanJob } from '@/types';
 
 export default function ScanPage() {
   const router = useRouter();
-  const [accounts, setAccounts] = useState<any[]>([]);
+  const [accounts, setAccounts] = useState<EmailAccount[]>([]);
   const [selectedAccount, setSelectedAccount] = useState('all');
   const [dateFrom, setDateFrom] = useState(
     new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
@@ -22,8 +22,7 @@ export default function ScanPage() {
   const [dateTo, setDateTo] = useState(new Date().toISOString().split('T')[0]);
   
   const [scanning, setScanning] = useState(false);
-  const [jobId, setJobId] = useState<string | null>(null);
-  const [progress, setProgress] = useState<any>(null);
+  const [progress, setProgress] = useState<ScanJob | null>(null);
   
   const pollInterval = useRef<NodeJS.Timeout | null>(null);
 
@@ -45,7 +44,6 @@ export default function ScanPage() {
     });
     
     const data = await res.json();
-    setJobId(data.jobId);
     
     // Start polling
     pollInterval.current = setInterval(async () => {

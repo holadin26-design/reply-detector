@@ -1,18 +1,15 @@
-'use client';
-
-import { useState, useEffect } from 'react';
 import { 
   Download, 
   Search, 
-  Filter, 
   ChevronRight, 
   ChevronDown,
   CheckCircle,
-  XCircle,
   MessageSquare,
   Clock,
   ArrowUpRight
 } from 'lucide-react';
+import { EmailAccount, ScannedEmail } from '@/types';
+import { useCallback } from 'react';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
@@ -32,24 +29,24 @@ const categoryColors: Record<string, string> = {
 };
 
 export default function ResultsPage() {
-  const [emails, setEmails] = useState<any[]>([]);
+  const [emails, setEmails] = useState<ScannedEmail[]>([]);
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState({
     accountId: 'all',
     category: 'all',
     isPositive: 'all'
   });
-  const [accounts, setAccounts] = useState<any[]>([]);
+  const [accounts, setAccounts] = useState<EmailAccount[]>([]);
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     setLoading(true);
     const params = new URLSearchParams(filters as any);
     const res = await fetch(`/api/results?${params}`);
     const data = await res.json();
     setEmails(data);
     setLoading(false);
-  };
+  }, [filters]);
 
   useEffect(() => {
     fetch('/api/accounts').then(res => res.json()).then(setAccounts);
@@ -234,7 +231,7 @@ export default function ResultsPage() {
                                 </div>
                                 <div>
                                    <p className="text-[10px] text-slate-500 uppercase font-bold mb-1">Reasoning</p>
-                                   <p className="text-sm text-slate-300 italic">"{email.ai_reasoning}"</p>
+                                   <p className="text-sm text-slate-300 italic">&quot;{email.ai_reasoning}&quot;</p>
                                 </div>
                                 <div>
                                    <p className="text-[10px] text-slate-500 uppercase font-bold mb-1">Account</p>
