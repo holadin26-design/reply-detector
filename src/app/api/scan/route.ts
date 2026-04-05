@@ -8,19 +8,31 @@ import { EmailAccount, ImapEmail } from '@/types';
 export const runtime = 'nodejs';
 
 export async function POST(request: Request) {
-  const { accountIds, dateFrom, dateTo } = await request.json();
-  const jobId = Math.random().toString(36).substring(7);
-  
-  scanJobs[jobId] = { status: 'running', fetched: 0, analyzed: 0, positives: 0 };
+  try {
+    const { accountIds, dateFrom, dateTo } = await request.json();
+    
+    if (!accountIds || !dateFrom || !dateTo) {
+      return NextResponse.json({ error: 'Missing scan parameters' }, { status: 400 });
+    }
 
-  // Run the scan asynchronously so we can return the jobId immediately
-  runScan(jobId, accountIds, new Date(dateFrom), new Date(dateTo)).catch(err => {
-    console.error('Scan Failed:', err);
-    scanJobs[jobId].status = 'error';
-    scanJobs[jobId].error = err.message;
-  });
+    const jobId = Math.random().toString(36).substring(7);
+    
+    scanJobs[jobId] = { status: 'running', fetched: 0, analyzed: 0, positives: 0 };
 
-  return NextResponse.json({ jobId });
+    // Run the scan asynchronously
+    runScan(jobId, accountIds, new Date(dateFrom), new Date(dateTo)).catch(err => {
+      console.error('Scan Failed:', err);
+      if (scanJobs[jobId]) {
+        scanJobs[jobId].status = 'error';
+        scanJobs[jobId].error = err instanceof Error ? err.message : String(err);
+      }
+    });
+
+    return NextResponse.json({ jobId });
+  } catch (err: unknown) {
+    console.error('Scan POST Error:', err);
+    return NextResponse.json({ error: err instanceof Error ? err.message : String(err) }, { status: 500 });
+  }
 }
 
 async function runScan(jobId: string, accountIds: string[], dateFrom: Date, dateTo: Date) {
