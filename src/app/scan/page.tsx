@@ -42,30 +42,57 @@ export default function ScanPage() {
       ? accounts.map(a => a.id)
       : [selectedAccount];
 
-    const res = await fetch('/api/scan', {
-      method: 'POST',
-      body: JSON.stringify({ accountIds, dateFrom, dateTo }),
-    });
-    
-    const data = await res.json();
-    
-    // Start polling
-    pollInterval.current = setInterval(async () => {
-      const pRes = await fetch(`/api/scan/status/${data.jobId}`);
-      const pData = await pRes.json();
-      setProgress(pData);
-      
-      if (pData.status === 'completed' || pData.status === 'error') {
-        if (pollInterval.current) clearInterval(pollInterval.current);
-        if (pData.status === 'completed') {
-          setTimeout(() => router.push('/results'), 1500);
+    try {
+      const res = await fetch('/api/scan', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ accountIds, dateFrom, dateTo }),
+      });
+
+      if (!res.body) throw new Error('No readable stream available');
+
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = '';
+
+      while (true) {
+        const { done, value } = await reader.read();
+        
+        if (value) {
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split('\n');
+          buffer = lines.pop() || '';
+          
+          for (const line of lines) {
+            if (!line.trim()) continue;
+            try {
+              const pData = JSON.parse(line);
+              setProgress(pData);
+              if (pData.status === 'completed') {
+                setTimeout(() => router.push('/results'), 1500);
+                return;
+              }
+              if (pData.status === 'error') {
+                return;
+              }
+            } catch (e) {
+              console.error('Error parsing stream:', e);
+            }
+          }
         }
+        if (done) break;
       }
-    }, 2000);
+    } catch (err: any) {
+      setProgress(prev => ({ 
+        ...(prev || { fetched: 0, analyzed: 0, positives: 0 }),
+        status: 'error', 
+        error: err.message || 'Stream failed' 
+      }));
+    }
   };
 
   useEffect(() => {
-    return () => { if (pollInterval.current) clearInterval(pollInterval.current); };
+    // Cleanup not required for standard fetch stream unless aborted
   }, []);
 
   return (
