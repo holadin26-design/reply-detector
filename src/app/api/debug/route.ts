@@ -6,10 +6,6 @@ export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {
-    const { data: emailCount, error: e1 } = await supabaseAdmin
-      .from('scanned_emails')
-      .select('id', { count: 'exact', head: true });
-
     const { count, error: e2 } = await supabaseAdmin
       .from('scanned_emails')
       .select('*', { count: 'exact', head: true });
@@ -28,7 +24,7 @@ export async function GET() {
       scanned_emails_count: count,
       recent_sample: sample,
       accounts,
-      errors: { e1: e1?.message, e2: e2?.message, e3: e3?.message, e4: e4?.message },
+      errors: { e2: e2?.message, e3: e3?.message, e4: e4?.message },
     });
   } catch (err: unknown) {
     return NextResponse.json({ error: err instanceof Error ? err.message : String(err) }, { status: 500 });
