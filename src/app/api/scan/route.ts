@@ -5,6 +5,7 @@ import { classifyEmail } from '@/lib/openai';
 import { EmailAccount, ImapEmail } from '@/types';
 
 export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
 export const maxDuration = 60; // Max allowed for Vercel Hobby
 
 export async function POST(request: Request) {

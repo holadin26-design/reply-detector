@@ -67,6 +67,9 @@ export default function ScanPage() {
             if (!line.trim()) continue;
             try {
               const pData = JSON.parse(line);
+              if (pData.error && !pData.status) {
+                pData.status = 'error';
+              }
               setProgress(pData);
               if (pData.status === 'completed') {
                 setTimeout(() => router.push('/results'), 1500);

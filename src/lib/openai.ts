@@ -111,11 +111,11 @@ export async function classifyEmail(body: string, fromName: string, fromEmail: s
 
   // Default fallback
   // If it's a short reply lacking negative words, it sometimes implies 'yes' or 'sure'.
-  // We'll mark it as 'other'.
+  // We'll mark it as 'other' and positive engagement.
   return {
-    is_positive: false, // Default to false unless explicitly positive to be safe
+    is_positive: true, 
     confidence_score: 0.5,
     category: "other",
-    reasoning: "Could not definitively classify the intent, defaulting to neutral/negative."
+    reasoning: "Did not contain explicit negative or unsubscribe keywords, assuming positive engagement."
   };
 }
