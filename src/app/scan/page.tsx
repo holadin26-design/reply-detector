@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { 
   Scan, 
@@ -25,7 +25,7 @@ export default function ScanPage() {
   const [scanning, setScanning] = useState(false);
   const [progress, setProgress] = useState<ScanJob | null>(null);
   
-  const pollInterval = useRef<NodeJS.Timeout | null>(null);
+
 
   useEffect(() => {
     fetch('/api/accounts')
@@ -85,11 +85,11 @@ export default function ScanPage() {
         }
         if (done) break;
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       setProgress(prev => ({ 
         ...(prev || { fetched: 0, analyzed: 0, positives: 0 }),
         status: 'error', 
-        error: err.message || 'Stream failed' 
+        error: err instanceof Error ? err.message : 'Stream failed' 
       }));
     }
   };

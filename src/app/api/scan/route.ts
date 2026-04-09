@@ -20,10 +20,10 @@ export async function POST(request: Request) {
     
     const stream = new ReadableStream({
       async start(controller) {
-        const sendUpdate = (data: any) => {
+        const sendUpdate = (data: Record<string, unknown>) => {
           try {
             controller.enqueue(encoder.encode(JSON.stringify(data) + '\n'));
-          } catch(e) {
+          } catch {
             console.error("Stream already closed");
           }
         };
